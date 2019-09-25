@@ -1,0 +1,292 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>CMS_WEB.API</name>
+    </assembly>
+    <members>
+        <member name="F:CMS_WEB.API.Controllers.BaseController._httpContextAccessor">
+            <summary>
+            获取 HTTP 请求上下文
+            </summary>
+        </member>
+        <member name="M:CMS_WEB.API.Controllers.BaseController.GetCurrentToken">
+            <summary>
+            获取 HTTP 请求的 Token 值
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:CMS_WEB.API.Controllers.BaseController.GetCurrentUserId">
+            <summary>
+            获取 HTTP 请求的UserId
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:CMS_WEB.API.Controllers.MenuController.MenuTree">
+            <summary>
+            导航菜单
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:CMS_WEB.API.Controllers.RoleController.RoleSelect">
+            <summary>
+            角色
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:CMS_WEB.API.Controllers.RoleController.RoleInfolist(CMS_Application._TableDto.TableInputDto)">
+            <summary>
+            角色信息表
+            </summary>
+            <param name="dto"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CMS_WEB.API.Controllers.RoleController.AddOrEditRolePermis(CMS_Application.Role.Dto.RolePermisDto)">
+            <summary>
+            修改角色权限
+            </summary>
+            <param name="dto"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CMS_WEB.API.Controllers.UserController.CurrentUserInfo">
+            <summary>
+            获取当前用户信息
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:CMS_WEB.API.Controllers.UserController.Login(CMS_Application.User.Dto.UserLoginInputDto)">
+            <summary>
+            登录
+            </summary>
+            <param name="user"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CMS_WEB.API.Controllers.UserController.Logout">
+            <summary>
+            登出
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:CMS_WEB.API.Controllers.UserController.ChangePwd(CMS_Application.User.UserInfo.Dto.ChangePwdDto)">
+            <summary>
+            修改密码
+            </summary>
+            <param name="dto"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CMS_WEB.API.Controllers.UserController.UserInfoList(CMS_Application._TableDto.TableInputDto)">
+            <summary>
+            用户信息表
+            </summary>
+            <param name="dto"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CMS_WEB.API.Controllers.UserController.AddOrEditUser(CMS_Application.User.UserInfo.Dto.UserInfoListDto)">
+            <summary>
+            添加和更改用户信息
+            </summary>
+            <param name="dto"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CMS_WEB.API.Controllers.UserController.DeleteUser(CMS_Application.User.UserInfo.Dto.UserInfoListDto)">
+            <summary>
+            删除用户（伪删除）
+            </summary>
+            <param name="dto"></param>
+            <returns></returns>
+        </member>
+        <member name="T:CMS_WEB.API.Filters.ApiFilterAttribute">
+            <summary>
+            Api 过滤器,记录请求上下文及响应上下文
+            </summary>
+        </member>
+        <member name="M:CMS_WEB.API.Filters.ApiFilterAttribute.OnResourceExecutionAsync(Microsoft.AspNetCore.Mvc.Filters.ResourceExecutingContext,Microsoft.AspNetCore.Mvc.Filters.ResourceExecutionDelegate)">
+            <summary>
+            请求Api 资源时
+            </summary>
+            <param name="context"></param>
+            <param name="next"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CMS_WEB.API.Filters.ApiFilterAttribute.OnResourceExecutedAsync(Microsoft.AspNetCore.Mvc.Filters.ResourceExecutingContext)">
+            <summary>
+            记录Http请求上下文
+            </summary>
+            <param name="context"></param>
+            <returns></returns>
+        </member>
+        <member name="M:CMS_WEB.API.Filters.ApiFilterAttribute.OnActionExecuting(Microsoft.AspNetCore.Mvc.Filters.ActionExecutingContext)">
+            <summary>
+            Action 执行前
+            </summary>
+            <param name="context"></param>
+        </member>
+        <member name="M:CMS_WEB.API.Filters.ApiFilterAttribute.OnActionExecuted(Microsoft.AspNetCore.Mvc.Filters.ActionExecutedContext)">
+            <summary>
+            Action 执行后
+            </summary>
+            <param name="context"></param>
+        </member>
+        <member name="T:CMS_WEB.API.Middleware.HttpContextMiddleware">
+            <summary>
+            Http 请求中间件
+            </summary>
+        </member>
+        <member name="F:CMS_WEB.API.Middleware.HttpContextMiddleware.next">
+            <summary>
+            处理HTTP请求
+            </summary>
+        </member>
+        <member name="M:CMS_WEB.API.Middleware.HttpContextMiddleware.#ctor(Microsoft.AspNetCore.Http.RequestDelegate)">
+            <summary>
+            构造 Http 请求中间件
+            </summary>
+            <param name="next"></param>
+        </member>
+        <member name="M:CMS_WEB.API.Middleware.HttpContextMiddleware.Invoke(Microsoft.AspNetCore.Http.HttpContext)">
+            <summary>
+            执行响应流指向新对象
+            </summary>
+            <param name="context"></param>
+            <returns></returns>
+        </member>
+        <member name="T:CMS_WEB.API.Middleware.HttpContextMiddleware.ReadableResponseBody">
+            <summary>
+            可读的Response Body
+            </summary>
+        </member>
+        <member name="F:CMS_WEB.API.Middleware.HttpContextMiddleware.ReadableResponseBody.body">
+            <summary>
+            流内容
+            </summary>
+        </member>
+        <member name="P:CMS_WEB.API.Middleware.HttpContextMiddleware.ReadableResponseBody.IsRead">
+            <summary>
+            获取或设置是否可读
+            </summary>
+        </member>
+        <member name="M:CMS_WEB.API.Middleware.HttpContextMiddleware.ReadableResponseBody.#ctor(System.IO.Stream)">
+            <summary>
+            构造自定义流
+            </summary>
+            <param name="body"></param>
+        </member>
+        <member name="M:CMS_WEB.API.Middleware.HttpContextMiddleware.ReadableResponseBody.Write(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            写入响应流
+            </summary>
+            <param name="buffer"></param>
+            <param name="offset"></param>
+            <param name="count"></param>
+        </member>
+        <member name="M:CMS_WEB.API.Middleware.HttpContextMiddleware.ReadableResponseBody.Write(System.ReadOnlySpan{System.Byte})">
+            <summary>
+            写入响应流
+            </summary>
+            <param name="source"></param>
+        </member>
+        <member name="M:CMS_WEB.API.Middleware.HttpContextMiddleware.ReadableResponseBody.Flush">
+            <summary>
+            刷新响应流
+            </summary>
+        </member>
+        <member name="M:CMS_WEB.API.Middleware.HttpContextMiddleware.ReadableResponseBody.ReadAsStringAsync">
+            <summary>
+            读取响应内容
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:CMS_WEB.API.Middleware.IReadableBody">
+            <summary>
+            定义可读Body的接口
+            </summary>
+        </member>
+        <member name="P:CMS_WEB.API.Middleware.IReadableBody.IsRead">
+            <summary>
+            获取或设置是否可读
+            </summary>
+        </member>
+        <member name="M:CMS_WEB.API.Middleware.IReadableBody.ReadAsStringAsync">
+            <summary>
+            读取文本内容
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:CMS_WEB.API.Model.HttpContextMessage">
+            <summary>
+            Http 上下日志
+            </summary>
+        </member>
+        <member name="P:CMS_WEB.API.Model.HttpContextMessage.UserId">
+            <summary>
+            发起请求的用户ID
+            </summary>
+        </member>
+        <member name="P:CMS_WEB.API.Model.HttpContextMessage.RequestQurey">
+            <summary>
+            请求Qurey消息
+            </summary>
+        </member>
+        <member name="P:CMS_WEB.API.Model.HttpContextMessage.RequestLocalIp">
+            <summary>
+            请求者本地ip
+            </summary>
+        </member>
+        <member name="P:CMS_WEB.API.Model.HttpContextMessage.RequestRemoteIp">
+            <summary>
+            请求者远程ip
+            </summary>
+        </member>
+        <member name="P:CMS_WEB.API.Model.HttpContextMessage.RequestMethod">
+            <summary>
+            请求方式
+            </summary>
+        </member>
+        <member name="P:CMS_WEB.API.Model.HttpContextMessage.RequestScheme">
+            <summary>
+            请求协议标识
+            </summary>
+        </member>
+        <member name="P:CMS_WEB.API.Model.HttpContextMessage.RequestContextType">
+            <summary>
+            请求内容类型
+            </summary>
+        </member>
+        <member name="P:CMS_WEB.API.Model.HttpContextMessage.RequestBody">
+            <summary>
+            请求Body消息
+            </summary>
+        </member>
+        <member name="P:CMS_WEB.API.Model.HttpContextMessage.RequestHost">
+            <summary>
+            请求域名消息
+            </summary>
+        </member>
+        <member name="P:CMS_WEB.API.Model.HttpContextMessage.RequestPath">
+            <summary>
+            请求路径消息
+            </summary>
+        </member>
+        <member name="P:CMS_WEB.API.Model.HttpContextMessage.ResponseBody">
+            <summary>
+            响应内容
+            </summary>
+        </member>
+        <member name="P:CMS_WEB.API.Model.HttpContextMessage.ResponseStatusCode">
+            <summary>
+            响应状态码
+            </summary>
+        </member>
+        <member name="M:CMS_WEB.API.Model.HttpContextMessage.ToString">
+            <summary>
+            重写ToString 方便阅读
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:CMS_WEB.API.Startup.GetClassName(System.String)">
+            <summary>  
+            获取程序集中的实现类对应的多个接口
+            </summary>  
+            <param name="assemblyName">程序集</param>
+        </member>
+    </members>
+</doc>
