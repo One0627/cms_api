@@ -41,7 +41,8 @@ namespace CMS_Application.Authorization
         {
             var claims = new[]
              {
-                   new Claim("UserId",dto.userId.ToString())
+                   new Claim("UserId",dto.userId.ToString()),
+                   new Claim("UserName",dto.userName)
              };
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

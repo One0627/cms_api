@@ -13,52 +13,64 @@ namespace CMS_Application.Hubs
     [Authorize]
     public class ChatHub : Hub
     {
-        protected static readonly List<string> userList = new List<string>();
-        protected static readonly Dictionary<string, string> _connections = new Dictionary<string, string>();
+        protected static  List<ChatUserInfo> chats = new List<ChatUserInfo>();
         // 客户端连接时操作
         public override Task OnConnectedAsync()
         {
             var userId = Context.User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value;
-            if (!userList.Contains(userId) && !string.IsNullOrWhiteSpace(userId))
+            var userName = Context.User.Claims.FirstOrDefault(c => c.Type == "UserName")?.Value;
+            var info = new ChatUserInfo();
+            info.connetcionId = Context.ConnectionId;
+            info.userId = userId;
+            info.userName = userName;
+            if (!chats.Select(x=>x.userId).Contains(userId) && !string.IsNullOrWhiteSpace(userId))
             {
-                userList.Add(userId);
-                _connections.Add(userId, Context.ConnectionId);
+                chats.Add(info);
             }
             else
             {
-                _connections[userId] = Context.ConnectionId;
+                Clients.Client(chats.First(x => x.userId == userId).connetcionId).SendAsync("ChatStop");
+                chats.First(x => x.userId == userId).connetcionId = Context.ConnectionId;
             }
-            if (_connections.Count > 1)
+            if (chats.Count > 1)
             {
-                var ids = _connections.Where(x => x.Key != userId).Select(x => x.Value).ToList();
-                Clients.Clients(ids as IReadOnlyList<string>).SendAsync("ReceiveMessage", new { title = "消息提示", message = $"用户{userId}上线了", type = "info" });
+                var ids = chats.Where(x => x.userId != userId).Select(x => x.connetcionId).ToList();
+                Clients.Clients(ids as IReadOnlyList<string>).SendAsync("ReceiveNotice", new { title = "消息提示", message = $"用户{chats.First(x => x.connetcionId == Context.ConnectionId).userName}上线了", type = "info" });
             }
+            Clients.All.SendAsync("OnlineNum", chats.Count);
             base.OnConnectedAsync();
             return Task.CompletedTask;
         }
         //当客户端断开连接时执行的操作。 如果客户端有意断开连接(通过调用connection.stop()，例如)，则exception参数将为null。 
         public override Task OnDisconnectedAsync(Exception exception)
         {
-            var userId = _connections.First(x => x.Value == Context.ConnectionId).Key;
-            if (_connections.ContainsValue(Context.ConnectionId))
+            var user = chats.FirstOrDefault(x => x.connetcionId == Context.ConnectionId);
+            if (chats.Select(x=>x.connetcionId).Contains(Context.ConnectionId))
             {
-                _connections.Remove(userId);
+                chats.Remove(user);
             }
-            if (_connections.Count > 0)
+            if (chats.Count > 0&&user!=null)
             {
-                Clients.All.SendAsync("ReceiveMessage", new { title = "消息提示", message = $"用户{userId}下线了", type = "info" });
+                Clients.All.SendAsync("ReceiveNotice", new { title = "消息提示", message = $"用户{user.userName}下线了", type = "info" });
             }
+            Clients.All.SendAsync("OnlineNum", chats.Count);
             base.OnDisconnectedAsync(exception);
             return Task.CompletedTask;
         }
 
-        public Task SendMessage(string user, string message)
+        public Task SendNotice(string userId, string message)
         {
-            if (_connections.ContainsKey(user))
+            if (chats.Select(x => x.userId).Contains(userId))
             {
-                return Clients.Client(_connections[user]).SendAsync("ReceiveMessage", new { title = "消息提示", message = $"用户{_connections[user]}你好！\n--用户{_connections.First(x => x.Value == Context.ConnectionId).Key}", type = "error" });
+                return Clients.Client(chats.First(x=>x.userId==userId).connetcionId).SendAsync("ReceiveNotice", new { title = "消息提示", message = $"用户{chats.First(x => x.userId == userId).userName}你好！\n--用户{chats.First(x => x.connetcionId == Context.ConnectionId).userName}", type = "error" });
             }
-            return Clients.Client(Context.ConnectionId).SendAsync("ReceiveMessage", new { title = "消息提示", message = $"用户{user}不在线", type = "info" });
+            return Clients.Client(Context.ConnectionId).SendAsync("ReceiveNotice", new { title = "消息提示", message = $"用户{chats.FirstOrDefault(x => x.userId == userId)?.userName}不在线", type = "info" });
+        }
+        public Task SendMsg(string msg)
+        {
+            var userId = Context.User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value;
+            var ids = chats.Select(x => x.userId).ToList();
+           return Clients.All.SendAsync("ReceiveMsg", new { type = 1,nickname=chats.First(x => x.connetcionId == Context.ConnectionId).userName ,msg });
         }
     }
 }
