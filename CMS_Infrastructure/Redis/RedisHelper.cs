@@ -12,15 +12,15 @@ namespace CMS_Infrastructure.Redis
     {
         //单例模式
         public static RedisCommon Default { get { return new RedisCommon(); } }
-        public static RedisCommon One { get { return new RedisCommon(1, "127.0.0.1:6379"); } }
-        public static RedisCommon Two { get { return new RedisCommon(2, "127.0.0.1:6379"); } }
+        public static RedisCommon One { get { return new RedisCommon( "127.0.0.1:6379",1); } }
+        public static RedisCommon Two { get { return new RedisCommon( "127.0.0.1:6379",2); } }
     }
     /// <summary>
     /// Redis操作类
     /// 老版用的是ServiceStack.Redis。
     /// Net Core使用StackExchange.Redis的nuget包
     /// </summary>
-    public class RedisCommon
+    public class RedisCommon : IRedisCommon
     {
         public static ILogger _logger = LogHelper.LogHelper.logger;//日志记录
         //redis数据库连接字符串
@@ -34,7 +34,7 @@ namespace CMS_Infrastructure.Redis
         /// </summary>
         /// <param name="db"></param>
         /// <param name="connectStr"></param>
-        public RedisCommon(int db, string connectStr)
+        public RedisCommon(string connectStr,int db=0)
         {
             _conn = connectStr;
             _db = db;

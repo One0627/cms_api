@@ -25,16 +25,17 @@ namespace CMS_Application.Authorization
         /// 配置信息
         /// </summary>
         private readonly IConfiguration _configuration;
-        
+        private readonly IRedisCommon _redis;
         /// <summary>
         /// 获取 HTTP 请求上下文
         /// </summary>
         private readonly IHttpContextAccessor _httpContextAccessor;
         
-        public JwtService(IHttpContextAccessor httpContextAccessor, IConfiguration configuration)
+        public JwtService(IHttpContextAccessor httpContextAccessor, IConfiguration configuration, IRedisCommon redis)
         {
             _httpContextAccessor = httpContextAccessor;
             _configuration = configuration;
+            _redis = redis;
         }
 
         public string CreateToken(UserLoginOutPutDto dto)
@@ -52,8 +53,8 @@ namespace CMS_Application.Authorization
                 claims: claims,
                 expires: DateTime.Now.AddHours(8),
                 signingCredentials: creds));
-            //redis.HashSet(HashKey, dto.userId, token);
-            //redis.SetExpire(HashKey, TimeSpan.FromHours(8));
+            //_redis.HashSet(HashKey, dto.userId, token);
+            //_redis.SetExpire(HashKey, TimeSpan.FromHours(8));
             return token;
         }
 

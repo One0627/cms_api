@@ -26,6 +26,7 @@ using StackExchange.Redis;
 using Swashbuckle.AspNetCore.Swagger;
 using Microsoft.AspNetCore.SignalR;
 using CMS_Application.Hubs;
+using CMS_Infrastructure.Redis;
 
 namespace CMS_WEB.API
 {
@@ -149,6 +150,7 @@ namespace CMS_WEB.API
             });
             services.AddSignalR();
             services.AddHttpContextAccessor();
+            services.AddSingleton(typeof(IRedisCommon), new RedisCommon(Configuration["Redis:ConnectionString"]));
             //services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             #endregion
         }
