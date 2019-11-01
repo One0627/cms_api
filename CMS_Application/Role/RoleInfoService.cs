@@ -31,7 +31,7 @@ namespace CMS_Application.Role
         public TableOutputDto<RolePermisDto> RoleInfoList(TableInputDto dto)
         {
             var entity = _dbContext.TbRole.Include("TbPerRelation.Permiss.Menu.InverseMenuParent").AsQueryable();
-            if (!string.IsNullOrWhiteSpace(dto.QueryString.Trim()))
+            if (!string.IsNullOrWhiteSpace(dto.QueryString))
             {
                 switch (dto.QueryType)
                 {
@@ -46,7 +46,7 @@ namespace CMS_Application.Role
             var total = entity.Where(x => x.IsDelete != 1).Count();
             var list = entity.Where(x => x.IsDelete != 1).OrderBy(x => x.RoleId).Skip((dto.currentPage - 1) * dto.pageSize).Take(dto.pageSize).ToList().Select(x =>
             {
-                var per = x.TbPerRelation.Where(y => y.Permiss.Menu.InverseMenuParent.Where(z=>z.IsDelete!=1).Count() == 0).Select(z => z.Permiss).ToList();
+                var per = x.TbPerRelation.Where(y => y.Permiss.Menu.InverseMenuParent.Where(z => z.IsDelete != 1).Count() == 0).Select(z => z.Permiss).ToList();
                 return new RolePermisDto
                 {
                     roleId = x.RoleId,
@@ -112,6 +112,7 @@ namespace CMS_Application.Role
                     return _dbContext.SaveChanges() > 0 ? true : false;
                 }
             }
+
         }
     }
 }

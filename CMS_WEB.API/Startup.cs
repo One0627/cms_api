@@ -27,6 +27,8 @@ using Swashbuckle.AspNetCore.Swagger;
 using Microsoft.AspNetCore.SignalR;
 using CMS_Application.Hubs;
 using CMS_Infrastructure.Redis;
+using Microsoft.Extensions.FileProviders;
+using Microsoft.AspNetCore.Http;
 
 namespace CMS_WEB.API
 {
@@ -54,7 +56,8 @@ namespace CMS_WEB.API
                 _builder.AllowAnyOrigin()//.WithOrigins("http://192.168.8.105","http://localhost")
                 .AllowAnyMethod()
                 .AllowAnyHeader()
-                .AllowCredentials();
+                .AllowCredentials()
+                .WithExposedHeaders("Content-Disposition");//添加自定义header
             }));
             #endregion
 
@@ -97,6 +100,7 @@ namespace CMS_WEB.API
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             services.AddMvc(options =>
             {
+                options.Filters.Add<Filters.ApiFilterAttribute>();
                 options.Filters.Add<Filters.HttpGlobalExceptionFilter>();// 自定义全局捕获异常
             });
             //.AddJsonOptions(options =>
@@ -167,11 +171,15 @@ namespace CMS_WEB.API
             {
                 app.UseHsts();
             }
-            app.UseStaticFiles();
+            app.UseStaticFiles(new StaticFileOptions()
+            {
+                FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/Files")),
+                RequestPath = new PathString("/src")
+            });
             app.UseCors("AllowCors");
+            app.UseErrorHandling();
             app.UseAuthentication();
-
-            app.UseMiddleware<HttpContextMiddleware>();
+            app.UseHttpContext();
 
             app.UseSwagger();
             app.UseSwaggerUI(c =>

@@ -20,10 +20,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using CMS_Application.Hubs;
+using CMS_Infrastructure.Helper;
 
 namespace CMS_WEB.API.Controllers
 {
-    [ApiFilter]
     [Route("[controller]")]
     [ApiController]
     public class UserController : BaseController
@@ -33,13 +33,18 @@ namespace CMS_WEB.API.Controllers
         private readonly IUserInfoService _userInfoService;
         private readonly IHubContext<ChatHub> _hubContext;
 
-        public UserController(ILogger<UserController> logger, IJwtService jwtService, IHttpContextAccessor httpContextAccessor, IUserInfoService userInfoService, IHubContext<ChatHub> hubContext) : base(httpContextAccessor)
+        public UserController(ILogger<UserController> logger, IJwtService jwtService, IHttpContextAccessor httpContextAccessor, IUserInfoService userInfoService, IHubContext<ChatHub> hubContext) 
         {
             _logger = logger;
             _jwtService = jwtService;
             _userInfoService = userInfoService;
             _hubContext = hubContext;
+            _httpContextAccessor = httpContextAccessor;
         }
+        /// <summary>
+        /// 当前token是否活跃
+        /// </summary>
+        /// <returns></returns>
         [HttpGet, Authorize]
         [ApiExplorerSettings(IgnoreApi = true)]
         public async Task<ActionResult> GetAsync()
@@ -61,7 +66,6 @@ namespace CMS_WEB.API.Controllers
             var userInfo = await _userInfoService.GetUserInfoBy(int.Parse(UserId));
             return Ok(userInfo);
         }
-
         /// <summary>
         /// 登录
         /// </summary>
@@ -72,6 +76,7 @@ namespace CMS_WEB.API.Controllers
         [Route("Login")]
         public async Task<IActionResult> Login(UserLoginInputDto user)
         {
+            user.passWord = user.passWord.Length < 16 ?MD5Helper.MD5Encrypt32(user.passWord) : user.passWord;
             var dto = await _userInfoService.Login(user);
             if (dto != null)
             {
@@ -90,7 +95,8 @@ namespace CMS_WEB.API.Controllers
         [HttpGet]
         public IActionResult Logout()
         {
-            return Ok();
+            var result = true;
+            return Ok(result);
         }
         /// <summary>
         /// 修改密码

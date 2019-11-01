@@ -12,7 +12,6 @@ using Microsoft.Extensions.Logging;
 
 namespace CMS_WEB.API.Controllers
 {
-    [ApiFilter]
     [Route("[controller]")]
     [ApiController]
     public class MenuController : BaseController
@@ -20,7 +19,7 @@ namespace CMS_WEB.API.Controllers
         private readonly ILogger<MenuController> _logger;
         private readonly IMenuService _menuService;
 
-        public MenuController(ILogger<MenuController> logger, IMenuService menuService, IHttpContextAccessor httpContextAccessor) : base(httpContextAccessor)
+        public MenuController(ILogger<MenuController> logger, IMenuService menuService, IHttpContextAccessor httpContextAccessor) 
         {
             _logger = logger;
             _menuService = menuService;
@@ -29,7 +28,7 @@ namespace CMS_WEB.API.Controllers
         /// 导航菜单
         /// </summary>
         /// <returns></returns>
-        [HttpGet, Authorize]
+        [HttpGet]
         [Route("MenuTree")]
         public IActionResult MenuTree()
         {

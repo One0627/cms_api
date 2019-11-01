@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using CMS_Application._TableDto;
+﻿using CMS_Application._TableDto;
 using CMS_Application.Role;
 using CMS_Application.Role.Dto;
-using CMS_WEB.API.Filters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -13,7 +8,6 @@ using Microsoft.Extensions.Logging;
 
 namespace CMS_WEB.API.Controllers
 {
-    [ApiFilter]
     [Route("[controller]")]
     [ApiController]
     public class RoleController : BaseController
@@ -21,7 +15,7 @@ namespace CMS_WEB.API.Controllers
         private readonly ILogger<UserController> _logger;
         private readonly IRoleInfoService _roleInfoService;
 
-        public RoleController(ILogger<UserController> logger, IRoleInfoService roleInfoService, IHttpContextAccessor httpContextAccessor) : base(httpContextAccessor)
+        public RoleController(ILogger<UserController> logger, IRoleInfoService roleInfoService, IHttpContextAccessor httpContextAccessor)
         {
             _logger = logger;
             _roleInfoService = roleInfoService;

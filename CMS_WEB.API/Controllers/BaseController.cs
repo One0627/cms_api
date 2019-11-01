@@ -15,12 +15,12 @@ namespace CMS_WEB.API.Controllers
         /// <summary>
         /// 获取 HTTP 请求上下文
         /// </summary>
-        public readonly IHttpContextAccessor _httpContextAccessor;
+        protected IHttpContextAccessor _httpContextAccessor;
 
-        public BaseController(IHttpContextAccessor httpContextAccessor)
-        {
-            _httpContextAccessor = httpContextAccessor;
-        }
+        //public BaseController(IHttpContextAccessor httpContextAccessor)
+        //{
+        //    _httpContextAccessor = httpContextAccessor;
+        //}
         /// <summary>
         /// 获取 HTTP 请求的 Token 值
         /// </summary>

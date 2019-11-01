@@ -31,7 +31,7 @@ namespace CMS_Application.User.UserInfo
         /// <returns></returns>
         public async Task<UserLoginOutPutDto> Login(UserLoginInputDto dto)
         {
-            var entity = await _dbContext.TbUser.FirstOrDefaultAsync(x => x.UserNo == dto.account && x.UserPassword == dto.passWord && x.UserState == 1 && x.IsDelete != 1);
+            var entity = await _dbContext.TbUser.FirstOrDefaultAsync(x => x.UserNo == dto.userNo && x.UserPassword == dto.passWord && x.UserState == 1 && x.IsDelete != 1);
             if (entity != null)
             {
                 return new UserLoginOutPutDto
@@ -83,7 +83,7 @@ namespace CMS_Application.User.UserInfo
             var permisIds = _dbContext.TbPerRelation.Where(x => roleIds.Contains(x.RoleId)).Select(x => x.PermissId).ToArray();
             var permiss = _dbContext.TbPermission.Where(x => permisIds.Contains(x.PermissId)).ToList();
             var perGroup = permiss.GroupBy(x => x.MenuId).ToList();
-            var menus = _dbContext.TbMenu.Where(x => perGroup.Select(y => y.Key).Contains(x.MenuId)).ToList();
+            var menus =isAdmin ? _dbContext.TbMenu.Where(x=>x.IsDelete!=1).ToList(): _dbContext.TbMenu.Where(x => perGroup.Select(y => y.Key).Contains(x.MenuId)).ToList();
             List<Permissions> Permissions(IEnumerable<TbMenu> menu)
             {
                 if (menu.Count() == 0) return null;
