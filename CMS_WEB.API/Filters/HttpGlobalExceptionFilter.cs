@@ -11,7 +11,7 @@ namespace CMS_WEB.API.Filters
     {
         public void OnException(ExceptionContext context)
         {
-            LogHelper.Error(context.Exception.ToString());
+            LogHelper.Error(context.Exception.InnerException.Message.ToString());
         }
     }
 }

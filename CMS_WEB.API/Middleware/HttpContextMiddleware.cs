@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -127,5 +128,11 @@ namespace CMS_WEB.API.Middleware
             }
         }
     }
-    
+    public static class HttpContextExtensions
+    {
+        public static IApplicationBuilder UseHttpContext(this IApplicationBuilder builder)
+        {
+            return builder.UseMiddleware<HttpContextMiddleware>();
+        }
+    }
 }

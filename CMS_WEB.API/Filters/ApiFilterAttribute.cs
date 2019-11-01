@@ -2,6 +2,7 @@
 using CMS_Infrastructure.Redis;
 using CMS_WEB.API.Middleware;
 using CMS_WEB.API.Model;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -18,7 +19,7 @@ namespace CMS_WEB.API.Filters
     /// <summary>
     /// Api 过滤器,记录请求上下文及响应上下文
     /// </summary>
-    public class ApiFilterAttribute : Attribute, IActionFilter, IAsyncResourceFilter
+    public class ApiFilterAttribute : ActionFilterAttribute, IActionFilter, IAsyncResourceFilter
     {
         /// <summary>
         /// 请求Api 资源时
@@ -91,12 +92,11 @@ namespace CMS_WEB.API.Filters
                 LogHelper.Debug(log);
             }
         }
-
         /// <summary>
         /// Action 执行前
         /// </summary>
         /// <param name="context"></param>
-        public void OnActionExecuting(ActionExecutingContext context)
+        public override void OnActionExecuting(ActionExecutingContext context)
         {
             var controllerActionDescriptor = context.ActionDescriptor as ControllerActionDescriptor;
             if (!controllerActionDescriptor.MethodInfo.GetCustomAttributes(typeof(SkipFilterAttribute), false).Any())
@@ -110,10 +110,10 @@ namespace CMS_WEB.API.Filters
                 //var res = ActualToken == token ? true : false;
                 //if (!res)
                 //{//单点登录
-                //    context.Result = new ForbidResult();
+                // context.Result = new ForbidResult();// StatusCodeResult(403);
                 //}
                 //设置 Http请求响应内容设为可读
-                if (context.HttpContext.Response.Body is IReadableBody responseBody)
+                if (context.HttpContext.Response.Body is IReadableBody responseBody && context.Result == null)
                 {
                     responseBody.IsRead = true;
                 }
@@ -124,8 +124,37 @@ namespace CMS_WEB.API.Filters
         /// Action 执行后
         /// </summary>
         /// <param name="context"></param>
-        public void OnActionExecuted(ActionExecutedContext context)
+        public override void OnActionExecuted(ActionExecutedContext context)
         {
+        }
+        public override void OnResultExecuting(ResultExecutingContext context)
+        {
+            var errors = context.ModelState
+                    .Where(e => e.Value.Errors.Count > 0)
+                    .Select(e => e.Value.Errors.First().ErrorMessage)
+                    .ToList();
+            var code = (context.Result as ObjectResult)?.StatusCode;
+            if (errors.Count > 0&&code==StatusCodes.Status400BadRequest)
+            {
+                var str = string.Join("|", errors);
+                var result = new
+                {
+                    code,
+                    msg = "参数不合法",
+                    data = str
+                };
+                context.Result = new BadRequestObjectResult(result);
+            }
+            else if(!string.IsNullOrWhiteSpace(code.ToString()))
+            {
+                var result = new
+                {
+                    code,
+                    msg = "成功",
+                    data = (context.Result as ObjectResult)?.Value
+                };
+                context.Result = new ObjectResult(result);
+            }
         }
     }
 
