@@ -8,6 +8,7 @@ using CMS_WEB.API.Filters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
 namespace CMS_WEB.API.Controllers
@@ -18,11 +19,13 @@ namespace CMS_WEB.API.Controllers
     {
         private readonly ILogger<MenuController> _logger;
         private readonly IMenuService _menuService;
+        private readonly IMemoryCache _memoryCache;
 
-        public MenuController(ILogger<MenuController> logger, IMenuService menuService, IHttpContextAccessor httpContextAccessor) 
+        public MenuController(ILogger<MenuController> logger, IMenuService menuService, IHttpContextAccessor httpContextAccessor, IMemoryCache memoryCache) 
         {
             _logger = logger;
             _menuService = menuService;
+            _memoryCache = memoryCache;
         }
         /// <summary>
         /// 导航菜单
@@ -32,7 +35,12 @@ namespace CMS_WEB.API.Controllers
         [Route("MenuTree")]
         public IActionResult MenuTree()
         {
-            var res = _menuService.GetMenus();
+            var res = _memoryCache.Get<List<MenuDto>>("MenuTree");
+            if (res == null)
+            {
+                res = _menuService.GetMenus();
+                _memoryCache.Set("MenuTree", res,TimeSpan.FromMinutes(10));
+            }
             return Ok(res);
         }
         [HttpPost, Authorize]

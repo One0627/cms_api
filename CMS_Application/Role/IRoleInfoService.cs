@@ -3,6 +3,7 @@ using CMS_Application.Role.Dto;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace CMS_Application.Role
 {
@@ -10,7 +11,7 @@ namespace CMS_Application.Role
     {
         List<RolePermisDto> RoleSelectDto();
 
-        TableOutputDto<RolePermisDto> RoleInfoList(TableInputDto dto);
+        Task<TableOutputDto<RolePermisDto>> RoleInfoList(TableInputDto dto);
 
         bool AddOrEditRolePermis(RolePermisDto dto);
     }

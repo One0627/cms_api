@@ -51,7 +51,7 @@ namespace CMS_Application.User.UserInfo
         /// <returns></returns>
         public async Task<UserInfoDto> GetUserInfoBy(int UserId)
         {
-            var entity = await _dbContext.TbUser.FirstOrDefaultAsync(x => x.UserId == UserId);
+            var entity = await _dbContext.TbUser.AsNoTracking().FirstOrDefaultAsync(x => x.UserId == UserId);
             List<Permissions> pers;
             if (UserId == 1 || _env.IsDevelopment())
             {
@@ -79,11 +79,11 @@ namespace CMS_Application.User.UserInfo
         /// <returns></returns>
         private List<Permissions> GetPermissions(int userId, bool isAdmin = false)
         {
-            var roleIds = _dbContext.TbUserRelation.Where(x => x.UserId == userId).Select(x => x.RoleId).ToArray();
-            var permisIds = _dbContext.TbPerRelation.Where(x => roleIds.Contains(x.RoleId)).Select(x => x.PermissId).ToArray();
-            var permiss = _dbContext.TbPermission.Where(x => permisIds.Contains(x.PermissId)).ToList();
+            var roleIds = _dbContext.TbUserRelation.AsNoTracking().Where(x => x.UserId == userId).Select(x => x.RoleId).ToArray();
+            var permisIds = _dbContext.TbPerRelation.AsNoTracking().Where(x => roleIds.Contains(x.RoleId)).Select(x => x.PermissId).ToArray();
+            var permiss = _dbContext.TbPermission.Where(x => permisIds.Contains(x.PermissId)).AsNoTracking().ToList();
             var perGroup = permiss.GroupBy(x => x.MenuId).ToList();
-            var menus =isAdmin ? _dbContext.TbMenu.Where(x=>x.IsDelete!=1).ToList(): _dbContext.TbMenu.Where(x => perGroup.Select(y => y.Key).Contains(x.MenuId)).ToList();
+            var menus = isAdmin ? _dbContext.TbMenu.Where(x => x.IsDelete != 1).AsNoTracking().ToList() : _dbContext.TbMenu.Where(x => perGroup.Select(y => y.Key).Contains(x.MenuId)).AsNoTracking().ToList();
             List<Permissions> Permissions(IEnumerable<TbMenu> menu)
             {
                 if (menu.Count() == 0) return null;
@@ -137,9 +137,10 @@ namespace CMS_Application.User.UserInfo
         /// </summary>
         /// <param name="dto"></param>
         /// <returns></returns>
-        public TableOutputDto<UserInfoListDto> UserInfoList(TableInputDto dto)
+        public async Task<TableOutputDto<UserInfoListDto>> UserInfoList(TableInputDto dto)
         {
-            var entity = _dbContext.TbUser.Include("TbUserRelation").AsQueryable();
+            //var entity = _dbContext.TbUser.Include("TbUserRelation").AsQueryable();
+            var entity = _dbContext.TbUser.AsQueryable();
             if (!string.IsNullOrWhiteSpace(dto.QueryString.Trim()))
             {
                 switch (dto.QueryType)
@@ -159,8 +160,8 @@ namespace CMS_Application.User.UserInfo
 
                 }
             }
-            var total = entity.Where(x => x.IsDelete != 1).Count();
-            var list = entity.Where(x => x.IsDelete != 1).OrderBy(x => x.UserId).Skip((dto.currentPage - 1) * dto.pageSize).Take(dto.pageSize).ToList().Select(x =>
+            var total = await entity.Where(x => x.IsDelete != 1).AsNoTracking().CountAsync();
+            var list = entity.Where(x => x.IsDelete != 1).OrderBy(x => x.UserId).Skip((dto.currentPage - 1) * dto.pageSize).Take(dto.pageSize).AsNoTracking().ToList().Select(x =>
                 {
                     List<int> ids = new List<int>();
                     foreach (var item in x.TbUserRelation)
@@ -188,7 +189,7 @@ namespace CMS_Application.User.UserInfo
         /// <returns></returns>
         public bool AddOrEditUserInfo(UserInfoListDto dto)
         {
-            var entity = _dbContext.TbUser.Include("TbUserRelation").FirstOrDefault(x => x.UserNo == dto.userNo);
+            var entity = _dbContext.TbUser.Include(x => x.TbUserRelation).FirstOrDefault(x => x.UserNo == dto.userNo);
             if (dto.userId != 0)
             {
                 entity.UserName = dto.userName;
@@ -223,14 +224,15 @@ namespace CMS_Application.User.UserInfo
                 };
                 using (_dbContext)
                 {
-                    _dbContext.TbUser.Add(entity);
+                    _dbContext.Entry(entity).State = EntityState.Added;
+                    //_dbContext.TbUser.Add(entity);
                     return _dbContext.SaveChanges() > 0 ? true : false;
                 }
             }
             return false;
         }
 
-        public bool DeleteUser(int userId,string updateBy)
+        public bool DeleteUser(int userId, string updateBy)
         {
             using (_dbContext)
             {

@@ -17,7 +17,7 @@ namespace CMS_Application.User.UserInfo
 
         bool ChangePwd(ChangePwdDto dto);
 
-        TableOutputDto<UserInfoListDto> UserInfoList(TableInputDto dto);
+        Task<TableOutputDto<UserInfoListDto>> UserInfoList(TableInputDto dto);
 
         bool AddOrEditUserInfo(UserInfoListDto dto);
 

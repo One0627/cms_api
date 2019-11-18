@@ -155,6 +155,7 @@ namespace CMS_WEB.API
             services.AddSignalR();
             services.AddHttpContextAccessor();
             services.AddSingleton(typeof(IRedisCommon), new RedisCommon(Configuration["Redis:ConnectionString"]));
+            services.AddMemoryCache();
             //services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             #endregion
         }

@@ -17,10 +17,10 @@ namespace CMS_Infrastructure.Helper
         /// List集合
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="entitys"></param>
-        /// <param name="listTitle"></param>
+        /// <param name="data">数据集</param>
+        /// <param name="listTitle">标题集合</param>
         /// <returns></returns>
-        public static MemoryStream ListExportMemoryStream<T>(List<T> entitys, string[] listTitle) where T : class
+        public static MemoryStream ListExportMemoryStream<T>(List<T> data, string[] listTitle) where T : class
         {
             IWorkbook book = new HSSFWorkbook();
             ISheet sheet = book.CreateSheet("Sheet1");
@@ -28,7 +28,7 @@ namespace CMS_Infrastructure.Helper
             ICellStyle style = book.CreateCellStyle();
             style.VerticalAlignment = VerticalAlignment.Center;//垂直居中  
 
-            Type entityType = entitys[0].GetType();
+            Type entityType = data[0].GetType();
             PropertyInfo[] entityProperties = entityType.GetProperties();
 
 
@@ -36,17 +36,17 @@ namespace CMS_Infrastructure.Helper
             {
                 rowTitle.CreateCell(i).SetCellValue(listTitle[i]);
             }
-            if (entitys != null)
+            if (data != null)
             {
                 int start = 0;//记录同组开始行号
                 int end = 0;//记录同组结束行号
                 string temp = "";//记录上一行的值
-                for (int i = 0; i < entitys.Count; i++)
+                for (int i = 0; i < data.Count; i++)
                 {
 
                     IRow row = sheet.CreateRow(i + 1);
 
-                    object entity = entitys[i];
+                    object entity = data[i];
                     for (int j = 0; j < listTitle.Length; j++)
                     {
                         object[] entityValues = new object[entityProperties.Length];

@@ -1,10 +1,12 @@
 ﻿using CMS_Application._TableDto;
 using CMS_Application.Role;
 using CMS_Application.Role.Dto;
+using CMS_WEB.API.Filters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System.Threading.Tasks;
 
 namespace CMS_WEB.API.Controllers
 {
@@ -24,6 +26,7 @@ namespace CMS_WEB.API.Controllers
         /// 角色
         /// </summary>
         /// <returns></returns>
+        [SkipFilter]
         [Authorize]
         [HttpGet]
         [Route("RoleSelect")]
@@ -36,12 +39,13 @@ namespace CMS_WEB.API.Controllers
         /// </summary>
         /// <param name="dto"></param>
         /// <returns></returns>
+        [SkipFilter]
         [Authorize]
         [HttpPost]
         [Route("RoleInfoList")]
-        public IActionResult RoleInfolist(TableInputDto dto)
+        public async Task<IActionResult> RoleInfolistAsync(TableInputDto dto)
         {
-            var res = _roleInfoService.RoleInfoList(dto);
+            var res =await _roleInfoService.RoleInfoList(dto);
             return Ok(res);
         }
         /// <summary>

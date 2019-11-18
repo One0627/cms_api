@@ -58,7 +58,7 @@ namespace CMS_WEB.API.Controllers
         /// 获取当前用户信息
         /// </summary>
         /// <returns></returns>
-        [HttpGet, Authorize]
+        [HttpGet, Authorize,SkipFilter]
         [Route("CurrentUserInfo")]
         public async Task<IActionResult> CurrentUserInfo()
         {
@@ -116,12 +116,11 @@ namespace CMS_WEB.API.Controllers
         /// </summary>
         /// <param name="dto"></param>
         /// <returns></returns>
-        [Authorize]
+        [HttpPost,Authorize, SkipFilter]
         [Route("UserInfoList")]
-        [HttpPost]
-        public IActionResult UserInfoList(TableInputDto dto)
+        public async Task<IActionResult> UserInfoList(TableInputDto dto)
         {
-            var res = _userInfoService.UserInfoList(dto);
+            var res = await _userInfoService.UserInfoList(dto);
             return Ok(res);
         }
         /// <summary>
@@ -135,6 +134,7 @@ namespace CMS_WEB.API.Controllers
         public IActionResult AddOrEditUser(UserInfoListDto dto)
         {
             dto.updateBy = GetCurrentUserId().Result;
+            dto.passWord = dto.passWord.Length < 16 ? MD5Helper.MD5Encrypt32(dto.passWord) : dto.passWord;
             var state = _userInfoService.AddOrEditUserInfo(dto);
             var message = state ? "保存成功" : "账号已存在";
             _hubContext.Clients.All.SendAsync("ReceiveUpdate").Wait();

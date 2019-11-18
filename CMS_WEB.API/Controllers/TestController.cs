@@ -51,7 +51,7 @@ namespace CMS_WEB.API.Controllers
             }
             else
             {
-                return Ok("no");
+                return Ok("请选择文件.");
             }
         }
 
@@ -61,12 +61,12 @@ namespace CMS_WEB.API.Controllers
         /// <returns></returns>
         [Route("ExcelExport")]
         [HttpPost]
-        public FileResult ExcelExport()
+        public async Task<FileResult> ExcelExport()
         {
             var filename = "excel.xls";
             string[] listTitle = { "序号", "英文名", "中文名", "最后操作时间" };
-            var list = _roleInfoService.RoleInfoList(new TableInputDto()).TableData;
-            var stream = ExcelHelper.ListExportMemoryStream(list, listTitle);
+            var list =await _roleInfoService.RoleInfoList(new TableInputDto());
+            var stream = ExcelHelper.ListExportMemoryStream(list.TableData, listTitle);
             return File(stream, "application/vnd.ms-excel", filename);
         }
         public class Test

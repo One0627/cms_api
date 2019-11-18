@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using CMS_Application._TableDto;
 using CMS_Application.Role.Dto;
 using CMS_Entity.Models;
@@ -19,18 +20,19 @@ namespace CMS_Application.Role
         }
         public List<RolePermisDto> RoleSelectDto()
         {
-            var data = _dbContext.TbRole.ToList().Select(x => new RolePermisDto
+            var data = _dbContext.TbRole.Select(x => new RolePermisDto
             {
                 roleId = x.RoleId,
                 roleName = x.RoleName,
                 roleNo = x.RoleNo
-            }).ToList();
+            }).AsNoTracking().ToList();
             return data;
         }
 
-        public TableOutputDto<RolePermisDto> RoleInfoList(TableInputDto dto)
+        public async Task<TableOutputDto<RolePermisDto>> RoleInfoList(TableInputDto dto)
         {
-            var entity = _dbContext.TbRole.Include("TbPerRelation.Permiss.Menu.InverseMenuParent").AsQueryable();
+            //var entity = _dbContext.TbRole.Include("TbPerRelation.Permiss.Menu.InverseMenuParent").AsQueryable();
+            var entity = _dbContext.TbRole.AsQueryable();
             if (!string.IsNullOrWhiteSpace(dto.QueryString))
             {
                 switch (dto.QueryType)
@@ -43,29 +45,29 @@ namespace CMS_Application.Role
                         break;
                 }
             }
-            var total = entity.Where(x => x.IsDelete != 1).Count();
-            var list = entity.Where(x => x.IsDelete != 1).OrderBy(x => x.RoleId).Skip((dto.currentPage - 1) * dto.pageSize).Take(dto.pageSize).ToList().Select(x =>
-            {
-                var per = x.TbPerRelation.Where(y => y.Permiss.Menu.InverseMenuParent.Where(z => z.IsDelete != 1).Count() == 0).Select(z => z.Permiss).ToList();
-                return new RolePermisDto
-                {
-                    roleId = x.RoleId,
-                    roleNo = x.RoleNo,
-                    roleName = x.RoleName,
-                    permissions = per.Select(y => new Permission
-                    {
-                        permissId = y.PermissId,
-                        menuId = y.MenuId,
-                        search = y.SearchState ?? true,
-                        add = y.AddState ?? true,
-                        delete = y.DeleteState ?? true,
-                        update = y.UpdateState ?? true,
-                        import = y.ImportState ?? true,
-                        export = y.ErportState ?? true,
-                        _lock = y.LockState ?? true
-                    }).ToList()
-                };
-            }).ToList();
+            var total = await entity.Where(x => x.IsDelete != 1).AsNoTracking().CountAsync();
+            List<RolePermisDto> list = entity.Where(x => x.IsDelete != 1).OrderBy(x => x.RoleId).Skip((dto.currentPage - 1) * dto.pageSize).Take(dto.pageSize).AsNoTracking().ToList().Select(x =>
+           {
+               var per = x.TbPerRelation.Where(y => y.Permiss.Menu.InverseMenuParent.Where(z => z.IsDelete != 1).Count() == 0).Select(z => z.Permiss).ToList();
+               return new RolePermisDto
+               {
+                   roleId = x.RoleId,
+                   roleNo = x.RoleNo,
+                   roleName = x.RoleName,
+                   permissions = per.Select(y => new Permission
+                   {
+                       permissId = y.PermissId,
+                       menuId = y.MenuId,
+                       search = y.SearchState ?? true,
+                       add = y.AddState ?? true,
+                       delete = y.DeleteState ?? true,
+                       update = y.UpdateState ?? true,
+                       import = y.ImportState ?? true,
+                       export = y.ErportState ?? true,
+                       _lock = y.LockState ?? true
+                   }).ToList()
+               };
+           }).ToList();
             return new TableOutputDto<RolePermisDto> { TableData = list, Total = total };
         }
         public bool AddOrEditRolePermis(RolePermisDto dto)
@@ -88,7 +90,10 @@ namespace CMS_Application.Role
             {
                 using (_dbContext)
                 {
-                    var entity = _dbContext.TbRole.Include("TbPerRelation.Permiss").FirstOrDefault(x => x.RoleId == dto.roleId);
+                    var entity = _dbContext.TbRole
+                        .Include(x => x.TbPerRelation)
+                            .ThenInclude(x => x.Permiss)
+                                .FirstOrDefault(x => x.RoleId == dto.roleId);
                     _dbContext.TbPermission.RemoveRange(entity.TbPerRelation.Select(x => x.Permiss));
                     entity.RoleName = dto.roleName;
                     entity.TbPerRelation = newPerRelation;
