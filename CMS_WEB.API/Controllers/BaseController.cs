@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -26,7 +26,7 @@ namespace CMS_WEB.API.Controllers
         /// </summary>
         /// <returns></returns>
         [ApiExplorerSettings(IgnoreApi = true)]
-        public string GetCurrentToken()
+        protected string CurrentToken()
         {
             //http header
             var authorizationHeader = _httpContextAccessor
@@ -41,15 +41,27 @@ namespace CMS_WEB.API.Controllers
         /// 获取 HTTP 请求的UserId
         /// </summary>
         /// <returns></returns>
-        [ApiExplorerSettings(IgnoreApi = true)] 
-        public async Task<string> GetCurrentUserId()
+        [ApiExplorerSettings(IgnoreApi = true)]
+        protected async Task<string> CurrentClaimByType(cType type = cType.USERNAME)
         {
+            var typeStr = string.Empty;
+            switch (type)
+            {
+                case cType.USERID:
+                    typeStr = "UserId";
+                    break;
+                case cType.USERNAME:
+                    typeStr = "UserName";
+                    break;
+                default:
+                    break;
+            }
             try
             {
                 var auth = await _httpContextAccessor.HttpContext.AuthenticateAsync();//获取登录用户的AuthenticateResult
                 if (auth.Succeeded)
                 {
-                    var userCli = auth.Principal.Claims.FirstOrDefault(c => c.Type == "UserId"); //在声明集合中获取ClaimTypes.NameIdentifier 的值就是用户ID
+                    var userCli = auth.Principal.Claims.FirstOrDefault(c => c.Type == typeStr); //在声明集合中获取ClaimTypes.NameIdentifier 的值就是用户ID
                     if (userCli == null || string.IsNullOrEmpty(userCli.Value))
                     {
                         return null;
@@ -58,10 +70,15 @@ namespace CMS_WEB.API.Controllers
                 }
                 return null;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw ex;
+                return null;
             }
+        }
+        public enum cType
+        {
+            USERID = 0,
+            USERNAME = 1
         }
     }
 }
